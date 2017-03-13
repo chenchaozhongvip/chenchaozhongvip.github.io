@@ -1,79 +1,70 @@
-var gulp = require('gulp');
-var csso = require('gulp-csso');
-var uglify = require('gulp-uglify');
-var concat = require('gulp-concat');
-var sass = require('gulp-sass');
-var plumber = require('gulp-plumber');
-var cp = require('child_process');
-var imagemin = require('gulp-imagemin');
-var browserSync = require('browser-sync');
+const gulp = require('gulp');
+const cp = require('child_process');
+const bs = require('browser-sync');
+const postcss = require('gulp-postcss');
+const cssImport = require('postcss-import');
+const nest = require('postcss-nested');
+const customProps = require('postcss-custom-properties');
+const calc = require('postcss-calc');
+const nano = require('gulp-cssnano');
 
-var jekyllCommand = (/^win/.test(process.platform)) ? 'jekyll.bat' : 'jekyll';
 
-/*
- * Build the Jekyll Site
- * runs a child process in node that runs the jekyll commands
- */
-gulp.task('jekyll-build', function (done) {
-	return cp.spawn(jekyllCommand, ['build'], {stdio: 'inherit'})
-		.on('close', done);
+// Build jekyll project
+gulp.task('jekyll', done => {
+  cp.spawn('jekyll', ['build', '--drafts', '--quiet', '--future'], { stdio: 'inherit' }).on('close', done);
 });
 
-/*
- * Rebuild Jekyll & reload browserSync
- */
-gulp.task('jekyll-rebuild', ['jekyll-build'], function () {
-	browserSync.reload();
+// Rebuild and refresh project
+gulp.task('reload', ['jekyll'], () => {
+  bs.reload();
 });
 
-/*
- * Build the jekyll site and launch browser-sync
- */
-gulp.task('browser-sync', ['jekyll-build'], function() {
-	browserSync({
-		server: {
-			baseDir: '_site'
-		}
-	});
+// Start BrowserSync server and serve _site directory
+gulp.task('browser-sync', ['styles', 'jekyll'], () => {
+  bs({
+    ui: false,
+    ghostMode: {
+      clicks: true,
+      forms: false,
+      scroll: true
+    },
+    logPrefix: 'songroger',
+    notify: false,
+    // port: 4000,
+    server: {
+      baseDir: '_site'
+    }
+  });
 });
 
-/*
-* Compile and minify sass
-*/
-gulp.task('sass', function() {
-  gulp.src('src/styles/**/*.scss')
-    .pipe(plumber())
-    .pipe(sass())
-    .pipe(csso())
-    .pipe(gulp.dest('assets/css'));
+// Process css, autoprefix, minify
+gulp.task('styles', () => {
+  const processors = [
+    cssImport,
+    customProps,
+    calc,
+    nest
+  ];
+  return gulp.src('_src/css/main.css')
+    .pipe(postcss(processors))
+    .pipe(nano({
+          //the following option is for :CSS3 Animation is missing after minify
+          reduceIdents: {
+              keyframes: false
+          },
+          discardUnused: {
+              keyframes: false
+          }
+          })
+    )
+    .pipe(gulp.dest('_includes/css'));
 });
 
-/*
- * Minify images
- */
-gulp.task('imagemin', function() {
-	return gulp.src('src/img/**/*.{jpg,png,gif}')
-		.pipe(plumber())
-		.pipe(imagemin({ optimizationLevel: 3, progressive: true, interlaced: true }))
-		.pipe(gulp.dest('assets/img/'));
+// Watch sass and all html posts
+gulp.task('watch', () => {
+  gulp.watch('_src/css/**/*.css', ['styles', 'reload']);
+  gulp.watch(['index.html', '_layouts/*.html', '_includes/*.html', '_posts/*', '_drafts/*', '*.md'], ['reload']);
 });
 
-/**
- * Compile and minify js
- */
-gulp.task('js', function(){
-	return gulp.src('src/js/**/*.js')
-		.pipe(plumber())
-		.pipe(concat('main.js'))
-		.pipe(uglify())
-		.pipe(gulp.dest('assets/js/'))
-});
-
-gulp.task('watch', function() {
-  gulp.watch('src/styles/**/*.scss', ['sass']);
-  gulp.watch('src/js/**/*.js', ['js']);
-	gulp.watch('src/img/**/*.{jpg,png,gif}', ['imagemin']);
-  gulp.watch(['*html', '_includes/*html', '_layouts/*.html'], ['jekyll-rebuild']);
-});
-
-gulp.task('default', ['js', 'sass', 'browser-sync', 'watch']);
+// default task
+gulp.task('default', ['styles', 'watch']);
