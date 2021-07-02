@@ -1,0 +1,14 @@
+Package: com.czc.NetSpeed-Pro
+Version: 0.1-1
+Architecture: iphoneos-arm
+Depends: firmware (>= 5.0), mobilesubstrate
+Filename: ./netspeed/com.czc.NetSpeed-Pro_0.1-1_iphoneos-arm.deb
+Size: 68240
+MD5sum: 6d7168d6b5bd2f2fe9d592b1ef6621a9
+SHA1: 50155c1d199f1deb4358d83d422446e4e123e5c0
+SHA256: 5f7f0e33b8495549100c642f44b7454cf96c1daa7f1baefafa52e9d2dd454ea2
+Section: Tweaks
+Priority: optional
+Author: JB
+Name: NetSpeed Pro
+
