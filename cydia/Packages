@@ -3,12 +3,12 @@ Version: 0.1-1
 Architecture: iphoneos-arm
 Depends: firmware (>= 5.0), mobilesubstrate
 Filename: ./netspeed/com.cz.NetSpeedPro_0.1-1_iphoneos-arm.deb
-Size: 61872
-MD5sum: 194045f6bcbfd8711a917b318542811a
-SHA1: 811a15879ced2dd36359076d828300f99b83abe3
-SHA256: 4226c5c16d992255a4201ea363e127299e0559e6a90a74ea54235814bf2ecd57
+Size: 183600
+MD5sum: c9fe73acf0494f116b03ce31ac0a9d31
+SHA1: f335e3dd2bc7690f61292da5c73e393fce699dba
+SHA256: fec26fbbdb65057f4d27c1e1aecac2785f044928050ace297e152baf34ed67cc
 Section: System
 Priority: optional
-Author: 陈超众
+Author: cz
 Name: NetSpeedPro
 
